@@ -36,7 +36,7 @@ The raw and prepared survey files and original reference documents are ignored b
 
 ## Git basics
 
-The team can use one `main` branch and separate script owners; one person maintains the shared preparation script. No remote is configured yet. Once a private remote and access are agreed and configured:
+The team uses the public GitHub repository at https://github.com/TheRedHotHabanero/AI_Counselor, one `main` branch and separate script owners; one person maintains the shared preparation script. Survey data and generated results remain outside Git. Once collaborators have the required access:
 
 1. **Pull** to get teammates' changes before starting: `git pull`.
 2. Edit your files. Review `git status` and `git diff`; **stage** only intended files, for example `git add your_script.R`.
