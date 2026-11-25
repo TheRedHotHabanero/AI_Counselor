@@ -9,7 +9,6 @@
 .vscode/
 .idea/
 *.log
-data/raw/
 data/processed/
 outputs/
 reference/
