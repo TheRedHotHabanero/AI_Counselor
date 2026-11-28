@@ -9,7 +9,7 @@ terminal. See the shared analysis plan for the hypotheses and assignments.
 | File | Purpose |
 | --- | --- |
 | `scripts/00_prepare_data.R` | Creates the shared, flat analysis table from the fixed source CSV. |
-| `scripts/01_h1_h3_pilot.R` | Karina's preliminary H1 affordability analysis and shared H1–H3 model; a commented example for the team. |
+| `scripts/01_h1_h3_pilot.R` | Karina's preliminary H1–H3 descriptives, shared model and exploratory correlations; a commented example for the team. |
 | `VARIABLE_DICTIONARY.md` | Explains the prepared variables, coding and review flags. |
 | `DATA_AUDIT.md` | Describes the input snapshot, data issues and open decisions. |
 | `AI_Counselor.Rproj` | Opens the project in RStudio; not required for VS Code or the terminal. |
@@ -48,4 +48,4 @@ Ask the coordinator for help with conflicts or a rejected push; never force push
 
 Before reporting final H1–H3 results, agree eligibility, treatment of missing and unmatched responses, controls, and coding directions. M1 is `ai_support_freq ~ afford_num + bar_cost + no_judgment + bar_stigma + genai_freq_num`. With the proposed codes, the expected signs are negative for affordability and positive for the other predictors. Describe N and missingness, report effect sizes and uncertainty, check model diagnostics, and note that linear regression approximates an ordinal outcome. Treat findings as associations, not causes. Do not make H6–H7 user-only selections until a user definition is agreed.
 
-`scripts/01_h1_h3_pilot.R` is Karina's commented affordability (H1) analysis within M1. Run `Rscript scripts/01_h1_h3_pilot.R` from the project root after preparation. It uses preliminary complete cases and does not filter undecided eligibility; results are not final until the team agrees the analysis rules. It prints aggregate summaries and writes a coefficient table and plots under the ignored `outputs/` folder. Review outputs for disclosure risk before sharing. Other owners can adapt the structure to their own assigned method rather than reuse M1 for every hypothesis.
+`scripts/01_h1_h3_pilot.R` describes all five H1–H3 predictors and fits the shared M1. Run `Rscript scripts/01_h1_h3_pilot.R` from the project root after preparation. It uses preliminary complete cases and does not filter undecided eligibility; results are not final until the team agrees the analysis rules. It writes coefficient and model tables, a numerical draft, descriptive and diagnostic plots, and exploratory unadjusted Spearman correlations under the ignored `outputs/` folder. Review outputs for disclosure risk before sharing. Other owners can adapt the structure to their own assigned method rather than reuse M1 for every hypothesis.
