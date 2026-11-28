@@ -16,19 +16,19 @@
 # file.path() builds portable relative paths on Windows, Linux and macOS.
 # Paths are relative to the project root, not to the location of this script.
 # PLEASE DO NOT USE FULL PATHS IN YOUR SCRIPTS, YOU WILL MAKE THEM NON-PORTABLE
-input <- file.path("data", "raw", "AI_Counselor_pulito.csv")
+input <- file.path("data", "raw", "final_data.csv")
 output <- file.path("data", "processed", "analysis.csv")
 
 # This is the MD5 checksum (a fingerprint of the file bytes) of the supplied
 # snapshot. Initially it was computed in a Linux terminal from the project root with:
-#   md5sum data/raw/AI_Counselor_pulito.csv
+#   md5sum data/raw/final_data.csv
 #
 # IDs below depend on the original row order. Even a seemingly harmless edit,
 # re-save or sort can change the file bytes; a changed order could assign an old
 # ID to a different respondent. Stop instead of silently assigning misleading IDs!!!
 
 # MD5 here detects accidental changes, not malicious tampering or authenticity.
-expected_md5 <- "eee46e08bc81da06b882de7002f1ce5a"
+expected_md5 <- "dc5557ebd80f5784edf8140a3313058d"
 if (!file.exists(input)) stop("Input CSV not found; run from the project root.")
 
 # unname() removes the filename attached to the result by tools::md5sum().
@@ -45,7 +45,22 @@ x <- read.csv(input, fileEncoding = "UTF-8", stringsAsFactors = FALSE,
 
 # L marks an integer in R. The expected dimensions describe this snapshot, not
 # an eligibility target: respondents are not dropped to reach a particular N.
-if (nrow(x) != 204L || ncol(x) != 28L) stop("Unexpected input dimensions.")
+if (nrow(x) != 202L || ncol(x) != 29L) stop("Unexpected input dimensions.")
+
+# Validate names and order before assigning our portable analysis names. The
+# new snapshot includes Age, calculated as 2026 minus year of birth.
+source_names <- c("Chronological.information", "Consent", "Nationality", "Main.occupation",
+                  "Gender", "Year.of.birth", "Parents.education",
+                  "Personal.perception.of.social.status", "AI.usage.fraquency",
+                  "Support.talk.fraquency.noAI", "Personal.support.network",
+                  "Session.mental.health.profess", "Access.barrier.to.MHP",
+                  "MHP.budget.affordability", "AI.used.for.emotional.support",
+                  "Frequency.AI.used.for.emotional.support", "Which.situation.used.AI",
+                  "Perception.helpful.AI.support", "Prefer.AI.over.people", "Regular.AI.coping",
+                  "No.judgment.AI.advice", "AI.pleasing.bias", "AI.perceived.objectivity",
+                  "Concerns.AI.privacy", "Unsafe.AI.risks", "AI.decision.role",
+                  "Post.AI.human.sharing", "Personal.dilemma.reaction", "Age")
+if (!identical(names(x), source_names)) stop("Unexpected input column names or order.")
 
 # Assign readable names in the fixed source column order
 names(x) <- c("submitted_at", "consent", "nationality", "occupation", "gender",
@@ -54,16 +69,17 @@ names(x) <- c("submitted_at", "consent", "nationality", "occupation", "gender",
               "affordability", "ai_support_use", "support_frequency", "situations",
               "helpfulness", "prefer_ai_over_people", "regular_ai_coping", "no_judgment",
               "pleasing_bias", "perceived_objectivity", "privacy_worry", "unsafe_risks",
-              "decision_role", "post_ai_sharing", "dilemma_reaction")
+              "decision_role", "post_ai_sharing", "dilemma_reaction", "approx_age")
 
 # Retain all imported source columns under raw_* names, including free text.
 # Imported missing values are NA, but answers are not otherwise recoded here.
 names(x) <- paste0("raw_", names(x))
 
-# seq_len() gives 1 through N; sprintf() formats them as r001, r002, etc.
-# IDs are stable only for this verified snapshot in its original row order.
+# The n prefix distinguishes these IDs from r001... in the previous snapshot.
+# They are stable only for this verified snapshot in its original row order;
+# they do not assert correspondence to IDs assigned to the old data.
 # d is the analysis data frame; x remains the imported source data frame.
-d <- data.frame(respondent_id = sprintf("r%03d", seq_len(nrow(x))), x,
+d <- data.frame(respondent_id = sprintf("n%03d", seq_len(nrow(x))), x,
                 check.names = FALSE, stringsAsFactors = FALSE)
 
 # Helper: trim surrounding whitespace for derived values, then treat an empty
@@ -97,7 +113,7 @@ d$afford_num <- recode(d$raw_affordability,
 
 # These source fields are already numeric text. Convert them to integers without
 # reverse-scoring; item direction must still be verified before interpretation.
-numeric_fields <- c("birth_year", "social_ladder", "helpfulness", "prefer_ai_over_people",
+numeric_fields <- c("birth_year", "approx_age", "social_ladder", "helpfulness", "prefer_ai_over_people",
                     "regular_ai_coping", "no_judgment", "pleasing_bias",
                     "perceived_objectivity", "privacy_worry", "unsafe_risks")
 for (field in numeric_fields) {
@@ -109,6 +125,10 @@ for (field in numeric_fields) {
     stop("Invalid integer in ", field)
   }
 }
+# The source age is year-based, not exact age at response. Stop if the source
+# stops following this convention; never use it as proof of eligibility.
+if (any(!is.na(d$approx_age) & !is.na(d$birth_year) &
+        d$approx_age != 2026L - d$birth_year)) stop("Unexpected approximate age calculation.")
 
 # MULTIPLE-CHOICE QUESTIONS
 # Each answer may contain selections separated by semicolons. choices is a
@@ -139,8 +159,9 @@ checkbox <- function(raw, choices) {
 # label without checking the data can turn a known response into an unmatched one.
 network <- checkbox(d$raw_support_network, list(
   talk_friends = "Friends", talk_family = "Family", talk_partner = "Partner",
-  talk_professional = "Mental health professional (therapist, psychologist, counsellor)",
-  talk_ai = "Artifical Intellligence"))
+  talk_professional = c("Mental health professional (therapist, psychologist, counsellor)",
+                        "Mental health professional"),
+  talk_ai = c("Artifical Intellligence", "Artificial Intelligence")))
 barriers <- checkbox(d$raw_barriers, list(
   bar_cost = "High cost / financial reasons", bar_self = "Preference to handle problems by myself",
   bar_time = "Lack of time or availability", bar_none = "None / I don’t need professional help",
@@ -190,7 +211,7 @@ check_range <- function(name, allowed) {
 for (name in c("genai_freq_num", "ai_support_freq")) check_range(name, 0:4)
 check_range("support_num", 0:3); check_range("afford_num", 0:2)
 check_range("social_ladder", 1:10)
-for (name in setdiff(numeric_fields, c("birth_year", "social_ladder"))) check_range(name, 1:5)
+for (name in setdiff(numeric_fields, c("birth_year", "approx_age", "social_ladder"))) check_range(name, 1:5)
 indicator_names <- c(names(network$values), names(barriers$values), names(situations$values))
 for (name in indicator_names) check_range(name, 0:1)
 # Test selected, unselected, blank and unmatched cases using artificial values,

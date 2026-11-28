@@ -1,5 +1,15 @@
 # Input data audit
 
+## Current snapshot: 28 November 2026
+
+- The current `data/raw/final_data.csv` has 202 rows and 29 columns, MD5 `dc5557ebd80f5784edf8140a3313058d`, SHA-256 `9215f825930be6bfe30d3d4a7c1b8a5ca11444ecd5aa8b4717071dd34118ba52`.
+- Compared with the earlier snapshot, timestamp multisets have 202 entries in common and two old entries absent; one timestamp is duplicated in each snapshot. Among 200 unique timestamp matches, values also differ in several columns; reasons for exclusions and edits are not established. Timestamps are not used as IDs.
+- The source's `Age` equals 2026 minus birth year for all rows; treat it as approximate, not exact age at response or a definitive eligibility test.
+- Preparation produces 202 rows and unique snapshot-specific `n` IDs. Checkbox questions have 2, 25 and 4 missing answers (network, barriers, situations), respectively, and zero unmatched rows after recognizing the current labels. There are 14 use/frequency inconsistencies; original answers are retained. Eligibility remains undecided.
+- `data/processed/analysis.csv` and `outputs/h1_h3_pilot/` were regenerated from this snapshot. The preliminary model uses 151 complete cases.
+
+## Historical snapshot: 25 November 2026
+
 Verified 25 November 2026 against data/raw/AI_Counselor_pulito.csv. These findings describe this specific snapshot, not a later live Google Form export.
 
 ## Snapshot

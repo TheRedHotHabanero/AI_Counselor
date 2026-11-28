@@ -30,9 +30,8 @@ Or, in an R console whose working directory is the project root:
 source(file.path("scripts", "00_prepare_data.R"), encoding = "UTF-8")
 ```
 
-The script reads `data/raw/AI_Counselor_pulito.csv` and creates `data/processed/analysis.csv`. Do not edit the generated table manually. Its fixed input checksum protects the respondent IDs: replacing or changing the input requires a reviewed ID and mapping strategy. See `VARIABLE_DICTIONARY.md`.
+The script reads `data/raw/final_data.csv` and creates `data/processed/analysis.csv`. Do not edit the generated table manually. Its fixed input checksum protects the respondent IDs: replacing or changing the input requires a reviewed ID and mapping strategy. See `VARIABLE_DICTIONARY.md`.
 
-The raw and prepared survey files and original reference documents are ignored by Git as a precaution. A Git clone alone cannot run preparation: obtain the exact input through a team-approved secure channel and place it at the path above. Do not upload it to GitHub, Google Sheets or another service without appropriate permission and an agreed access policy. The generated CSV also contains raw free text and must be handled as sensitive data.
 
 ## Git basics
 
